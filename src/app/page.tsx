@@ -28,7 +28,7 @@ export default async function HomePage() {
       <section className="relative z-10 mx-auto flex max-w-7xl flex-col items-start gap-10 px-6 pb-12 pt-32 md:px-12 lg:flex-row lg:items-center lg:justify-between lg:pt-36">
         <Hero />
         <div id="login" className="w-full lg:w-auto">
-          <PhoneLoginCard />
+          <PhoneLoginCard googleClientId={process.env.AUTH_GOOGLE_ID} />
         </div>
       </section>
 

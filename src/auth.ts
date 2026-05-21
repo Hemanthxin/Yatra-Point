@@ -8,10 +8,11 @@ import { db } from "@/lib/db";
 import { accounts, sessions, users, verificationTokens } from "@/lib/db/schema";
 import { verifyOtpSchema, toE164 } from "@/lib/validators";
 import { verifyOtp } from "@/lib/otp/service";
+import { verifyGoogleIdToken } from "@/lib/google-id-token";
 
-// Full NextAuth config — DB adapter + phone-OTP credentials + DB-backed JWT
-// hydration. Used by API routes and server components. The Edge middleware
-// uses ./auth.config directly so bcryptjs/crypto don't get pulled in there.
+// Full NextAuth config — DB adapter + phone-OTP + Google Identity Services
+// (ID-token flow, no client secret required). Used by API routes and server
+// components. The Edge middleware uses ./auth.config directly.
 
 declare module "next-auth" {
   interface Session {
@@ -31,7 +32,74 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     verificationTokensTable: verificationTokens,
   }),
   providers: [
-    ...authConfig.providers,
+    // ── Google Identity Services (ID-token flow, no client secret) ──
+    Credentials({
+      id: "google-id-token",
+      name: "Google",
+      credentials: {
+        credential: { label: "ID Token", type: "text" },
+      },
+      async authorize(raw) {
+        if (
+          !raw ||
+          typeof raw.credential !== "string" ||
+          raw.credential.length === 0
+        ) {
+          return null;
+        }
+
+        const claims = await verifyGoogleIdToken(raw.credential);
+        if (!claims) return null;
+
+        const email = claims.email;
+        const now = new Date();
+
+        const existing = await db
+          .select()
+          .from(users)
+          .where(eq(users.email, email))
+          .limit(1);
+
+        if (existing[0]) {
+          await db
+            .update(users)
+            .set({
+              name: existing[0].name ?? claims.name ?? null,
+              image: existing[0].image ?? claims.picture ?? null,
+              emailVerified: claims.email_verified
+                ? existing[0].emailVerified ?? now
+                : existing[0].emailVerified,
+              updatedAt: now,
+            })
+            .where(eq(users.id, existing[0].id));
+          return {
+            id: existing[0].id,
+            name: existing[0].name ?? claims.name ?? undefined,
+            email: existing[0].email ?? email,
+            image: existing[0].image ?? claims.picture ?? undefined,
+          };
+        }
+
+        const [created] = await db
+          .insert(users)
+          .values({
+            name: claims.name ?? null,
+            email,
+            image: claims.picture ?? null,
+            emailVerified: claims.email_verified ? now : null,
+          })
+          .returning();
+
+        return {
+          id: created.id,
+          name: created.name ?? undefined,
+          email: created.email ?? undefined,
+          image: created.image ?? undefined,
+        };
+      },
+    }),
+
+    // ── Phone + OTP credentials ──
     Credentials({
       id: "phone-otp",
       name: "Phone OTP",
