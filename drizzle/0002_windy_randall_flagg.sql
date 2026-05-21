@@ -1,0 +1,21 @@
+CREATE TABLE IF NOT EXISTS "nearby_destinations" (
+	"id" text PRIMARY KEY NOT NULL,
+	"slug" varchar(100) NOT NULL,
+	"name" varchar(140) NOT NULL,
+	"base_city" varchar(60) NOT NULL,
+	"category" varchar(40) NOT NULL,
+	"description" text NOT NULL,
+	"short_description" varchar(220) NOT NULL,
+	"image_url" text,
+	"distance_km" integer NOT NULL,
+	"driving_minutes" integer NOT NULL,
+	"entry_fee_per_person" integer DEFAULT 0 NOT NULL,
+	"ideal_hours_at_place" integer DEFAULT 3 NOT NULL,
+	"best_start_time" varchar(10),
+	"highlights" text,
+	"latitude" varchar(20) NOT NULL,
+	"longitude" varchar(20) NOT NULL,
+	"popularity" integer DEFAULT 50 NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	CONSTRAINT "nearby_destinations_slug_unique" UNIQUE("slug")
+);

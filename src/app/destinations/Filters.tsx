@@ -1,0 +1,151 @@
+"use client";
+
+import { useRouter, useSearchParams } from "next/navigation";
+import { useTransition, useState, useEffect, type FormEvent } from "react";
+import { Search, X } from "lucide-react";
+import { CATEGORIES } from "@/lib/catalog/categories";
+
+interface FiltersProps {
+  states: string[];
+  initial: {
+    category?: string;
+    state?: string;
+    q?: string;
+    maxBudget?: number;
+  };
+}
+
+export function Filters({ states, initial }: FiltersProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [isPending, startTransition] = useTransition();
+  const [q, setQ] = useState(initial.q ?? "");
+
+  // Keep search input in sync if back/forward changes the URL.
+  useEffect(() => {
+    setQ(searchParams.get("q") ?? "");
+  }, [searchParams]);
+
+  function push(next: URLSearchParams) {
+    startTransition(() => {
+      const qs = next.toString();
+      router.push(qs ? `/destinations?${qs}` : "/destinations");
+    });
+  }
+
+  function setParam(key: string, value: string | undefined) {
+    const next = new URLSearchParams(searchParams.toString());
+    if (value && value.length > 0) next.set(key, value);
+    else next.delete(key);
+    push(next);
+  }
+
+  function onSubmit(e: FormEvent) {
+    e.preventDefault();
+    setParam("q", q.trim());
+  }
+
+  function clearAll() {
+    setQ("");
+    push(new URLSearchParams());
+  }
+
+  const active = ["category", "state", "q", "maxBudget"].some((k) =>
+    searchParams.get(k)
+  );
+
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white p-4">
+      <form
+        onSubmit={onSubmit}
+        className="flex flex-col gap-3 md:flex-row md:items-end"
+      >
+        <div className="flex-1">
+          <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500">
+            Search
+          </label>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Search places, states, vibes…"
+              className="w-full rounded-lg border border-slate-300 bg-white py-2 pl-9 pr-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/30"
+            />
+          </div>
+        </div>
+
+        <div className="md:w-44">
+          <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500">
+            Category
+          </label>
+          <select
+            value={initial.category ?? ""}
+            onChange={(e) => setParam("category", e.target.value || undefined)}
+            className="w-full rounded-lg border border-slate-300 bg-white py-2 px-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/30"
+          >
+            <option value="">All categories</option>
+            {CATEGORIES.map((c) => (
+              <option key={c.slug} value={c.slug}>
+                {c.emoji} {c.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="md:w-44">
+          <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500">
+            State
+          </label>
+          <select
+            value={initial.state ?? ""}
+            onChange={(e) => setParam("state", e.target.value || undefined)}
+            className="w-full rounded-lg border border-slate-300 bg-white py-2 px-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/30"
+          >
+            <option value="">All states</option>
+            {states.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="md:w-44">
+          <label className="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500">
+            Max ₹ / day
+          </label>
+          <select
+            value={initial.maxBudget ?? ""}
+            onChange={(e) => setParam("maxBudget", e.target.value || undefined)}
+            className="w-full rounded-lg border border-slate-300 bg-white py-2 px-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/30"
+          >
+            <option value="">Any budget</option>
+            <option value="1500">Under ₹1,500</option>
+            <option value="2000">Under ₹2,000</option>
+            <option value="2500">Under ₹2,500</option>
+            <option value="3500">Under ₹3,500</option>
+            <option value="5000">Under ₹5,000</option>
+          </select>
+        </div>
+
+        <button
+          type="submit"
+          disabled={isPending}
+          className="rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-600 disabled:opacity-60"
+        >
+          {isPending ? "…" : "Search"}
+        </button>
+        {active && (
+          <button
+            type="button"
+            onClick={clearAll}
+            className="inline-flex items-center gap-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+          >
+            <X className="h-4 w-4" /> Clear
+          </button>
+        )}
+      </form>
+    </div>
+  );
+}
