@@ -1,5 +1,11 @@
-import { auth } from "@/auth";
+import NextAuth from "next-auth";
 import { NextResponse } from "next/server";
+import { authConfig } from "@/auth.config";
+
+// Middleware runs on the Edge Runtime, so it MUST use the edge-safe
+// auth.config (no DB adapter, no bcryptjs). The full auth.ts is reserved
+// for API routes and server components running on Node.
+const { auth } = NextAuth(authConfig);
 
 const PROTECTED = [
   "/dashboard",

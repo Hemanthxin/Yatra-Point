@@ -1,13 +1,17 @@
 import NextAuth, { type DefaultSession } from "next-auth";
-import Google from "next-auth/providers/google";
 import Credentials from "next-auth/providers/credentials";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { eq } from "drizzle-orm";
 
+import { authConfig } from "./auth.config";
 import { db } from "@/lib/db";
 import { accounts, sessions, users, verificationTokens } from "@/lib/db/schema";
 import { verifyOtpSchema, toE164 } from "@/lib/validators";
 import { verifyOtp } from "@/lib/otp/service";
+
+// Full NextAuth config — DB adapter + phone-OTP credentials + DB-backed JWT
+// hydration. Used by API routes and server components. The Edge middleware
+// uses ./auth.config directly so bcryptjs/crypto don't get pulled in there.
 
 declare module "next-auth" {
   interface Session {
@@ -19,21 +23,15 @@ declare module "next-auth" {
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  ...authConfig,
   adapter: DrizzleAdapter(db, {
     usersTable: users,
     accountsTable: accounts,
     sessionsTable: sessions,
     verificationTokensTable: verificationTokens,
   }),
-  // JWT sessions let us mix OAuth and Credentials providers cleanly.
-  session: { strategy: "jwt" },
-  pages: { signIn: "/" },
   providers: [
-    Google({
-      clientId: process.env.AUTH_GOOGLE_ID,
-      clientSecret: process.env.AUTH_GOOGLE_SECRET,
-      allowDangerousEmailAccountLinking: true,
-    }),
+    ...authConfig.providers,
     Credentials({
       id: "phone-otp",
       name: "Phone OTP",
@@ -81,9 +79,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   ],
   callbacks: {
     async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
-      }
+      if (user) token.id = user.id;
       // Hydrate phone lazily so it survives across requests.
       if (token.id && !token.phone) {
         const [row] = await db
