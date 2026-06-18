@@ -1,19 +1,32 @@
-import { AppHeader } from "./AppHeader";
+"use client";
+
+import { useState } from "react";
+import { Sidebar } from "./Sidebar";
+import { Topbar } from "./Topbar";
 
 interface AppShellProps {
   userLabel: string;
   userImage?: string | null;
+  location?: string;
   children: React.ReactNode;
 }
 
-export function AppShell({ userLabel, userImage, children }: AppShellProps) {
+export function AppShell({ userLabel, userImage, location, children }: AppShellProps) {
+  const [open, setOpen] = useState(false);
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-100 text-slate-900">
-      <AppHeader userLabel={userLabel} userImage={userImage} />
-      <main className="mx-auto max-w-7xl px-6 py-8">{children}</main>
-      <footer className="mx-auto max-w-7xl px-6 pb-10 pt-2 text-center text-xs text-slate-400">
-        Explore World · Discover places. Plan smart. Travel more.
-      </footer>
+    <div className="min-h-screen bg-slate-50 text-slate-900">
+      <Sidebar open={open} onClose={() => setOpen(false)} />
+
+      <div className="lg:pl-64">
+        <Topbar
+          userLabel={userLabel}
+          userImage={userImage}
+          location={location}
+          onMenu={() => setOpen((v) => !v)}
+        />
+        <main className="mx-auto max-w-7xl px-4 py-6 md:px-6 md:py-8">{children}</main>
+      </div>
     </div>
   );
 }

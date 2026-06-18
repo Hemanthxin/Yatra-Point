@@ -1,11 +1,10 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { AppShell } from "@/components/app/AppShell";
-import { PlannerForm } from "./PlannerForm";
+import { WizardForm } from "./WizardForm";
 import { PlannerResults } from "./PlannerResults";
 import { listDestinations, listFavoriteIds } from "@/lib/queries/destinations";
 import { CATEGORIES } from "@/lib/catalog/categories";
-import { Wallet } from "lucide-react";
 
 interface PageProps {
   searchParams: Promise<{
@@ -49,39 +48,28 @@ export default async function BudgetPlannerPage({ searchParams }: PageProps) {
 
   return (
     <AppShell userLabel={u.name || u.email || u.phone || "Traveller"} userImage={u.image}>
-      <header className="mb-6 flex items-center gap-3">
-        <div className="grid h-10 w-10 place-items-center rounded-full bg-emerald-100 text-emerald-700">
-          <Wallet className="h-5 w-5" />
-        </div>
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">Trip Planner</h1>
-          <p className="text-sm text-slate-500">
-            Tell us your budget and days — we'll match destinations that fit.
-          </p>
-        </div>
-      </header>
-
-      <PlannerForm
+      <WizardForm
         initial={{
           budget: budget,
           days: days,
           travellers: travellers,
-          category: validCat,
         }}
       />
 
       {hasInputs && (
-        <PlannerResults
-          matches={matches}
-          favIds={favIds}
-          summary={{
-            totalBudget: budget!,
-            days: days!,
-            travellers,
-            category: validCat,
-            perPersonPerDay,
-          }}
-        />
+        <div className="mt-8">
+          <PlannerResults
+            matches={matches}
+            favIds={favIds}
+            summary={{
+              totalBudget: budget!,
+              days: days!,
+              travellers,
+              category: validCat,
+              perPersonPerDay,
+            }}
+          />
+        </div>
       )}
     </AppShell>
   );
