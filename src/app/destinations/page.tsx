@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { AppShell } from "@/components/app/AppShell";
 import { DestinationCard } from "@/components/app/DestinationCard";
+import { RevealGrid } from "@/components/app/RevealGrid";
 import { Filters } from "./Filters";
 import {
   listDestinations,
@@ -67,7 +68,10 @@ export default async function DestinationsPage({ searchParams }: PageProps) {
           </p>
         </div>
       ) : (
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <RevealGrid
+          className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+          resetKey={`${validCat ?? ""}|${sp.state ?? ""}|${sp.q ?? ""}|${maxBudget ?? ""}`}
+        >
           {items.map((d) => (
             <DestinationCard
               key={d.id}
@@ -75,7 +79,7 @@ export default async function DestinationsPage({ searchParams }: PageProps) {
               favored={favIds.has(d.id)}
             />
           ))}
-        </div>
+        </RevealGrid>
       )}
     </AppShell>
   );

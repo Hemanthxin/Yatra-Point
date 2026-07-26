@@ -16,6 +16,7 @@ import {
 
 import { auth } from "@/auth";
 import { AppShell } from "@/components/app/AppShell";
+import { RevealGrid } from "@/components/app/RevealGrid";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -178,7 +179,7 @@ export default async function DashboardPage() {
       </section>
 
       {/* Feature cards */}
-      <section className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <RevealGrid className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {features.map((f) => (
           <Link
             key={f.title}
@@ -197,7 +198,7 @@ export default async function DashboardPage() {
             </span>
           </Link>
         ))}
-      </section>
+      </RevealGrid>
 
       {/* Near By & Main Places */}
       <section className="mt-8">
@@ -207,8 +208,8 @@ export default async function DashboardPage() {
             View all
           </Link>
         </div>
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-          {nearby.map((n, i) => (
+        <RevealGrid className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+          {nearby.map((n) => (
             <Link
               key={n.name}
               href="/explore-bangalore"
@@ -236,11 +237,11 @@ export default async function DashboardPage() {
               </div>
             </Link>
           ))}
-        </div>
+        </RevealGrid>
       </section>
 
       {/* Bottom 3-column row */}
-      <section className="mt-8 grid grid-cols-1 gap-4 lg:grid-cols-3">
+      <RevealGrid className="mt-8 grid grid-cols-1 gap-4 lg:grid-cols-3">
         {/* Trips by Places */}
         <div className="rounded-2xl border border-slate-200 bg-white p-5">
           <div className="mb-4 flex items-center justify-between">
@@ -322,7 +323,7 @@ export default async function DashboardPage() {
             Plan a trip <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
-      </section>
+      </RevealGrid>
     </AppShell>
   );
 }

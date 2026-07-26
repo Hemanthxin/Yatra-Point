@@ -5,6 +5,7 @@ import type { NearbyDestination } from "@/lib/db/schema";
 import { useLocation } from "@/components/app/LocationContext";
 import { sortByUserDistance } from "@/lib/nearby-utils";
 import { NearbyTripCard } from "@/components/app/NearbyTripCard";
+import { RevealGrid } from "@/components/app/RevealGrid";
 import { CATEGORIES } from "@/lib/catalog/categories";
 
 interface TripsListProps {
@@ -65,7 +66,10 @@ export function TripsList({ trips }: TripsListProps) {
           </p>
         </div>
       ) : (
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <RevealGrid
+          className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+          resetKey={`${category}|${maxDistance}|${filtered.length}`}
+        >
           {filtered.map((d) => (
             <NearbyTripCard
               key={d.id}
@@ -73,7 +77,7 @@ export function TripsList({ trips }: TripsListProps) {
               userDistanceKm={d.userDistanceKm}
             />
           ))}
-        </div>
+        </RevealGrid>
       )}
     </>
   );

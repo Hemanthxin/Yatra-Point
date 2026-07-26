@@ -4,6 +4,7 @@ import { CalendarClock, MapPin, ArrowRight } from "lucide-react";
 
 import { auth } from "@/auth";
 import { AppShell } from "@/components/app/AppShell";
+import { RevealGrid } from "@/components/app/RevealGrid";
 
 const FESTIVALS = [
   { name: "Mysuru Dasara", place: "Mysuru, Karnataka", month: "Oct", emoji: "🪔" },
@@ -33,9 +34,12 @@ export default async function FestivalsPage() {
         </div>
       </header>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <RevealGrid className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {FESTIVALS.map((f) => (
-          <div key={f.name} className="rounded-2xl border border-slate-200 bg-white p-5">
+          <div
+            key={f.name}
+            className="rounded-2xl border border-slate-200 bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-md"
+          >
             <div className="flex items-start justify-between">
               <span className="text-4xl">{f.emoji}</span>
               <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
@@ -54,7 +58,7 @@ export default async function FestivalsPage() {
             </Link>
           </div>
         ))}
-      </div>
+      </RevealGrid>
     </AppShell>
   );
 }

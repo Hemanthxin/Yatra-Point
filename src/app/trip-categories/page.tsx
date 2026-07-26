@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { AppShell } from "@/components/app/AppShell";
+import { RevealGrid } from "@/components/app/RevealGrid";
 import { CATEGORIES, CATEGORY_GRADIENT, type CategorySlug } from "@/lib/catalog/categories";
 import { countsByCategory } from "@/lib/queries/destinations";
 
@@ -22,7 +23,7 @@ export default async function TripCategoriesPage() {
         </p>
       </header>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <RevealGrid className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {CATEGORIES.map((c) => (
           <Link
             key={c.slug}
@@ -47,7 +48,7 @@ export default async function TripCategoriesPage() {
             </div>
           </Link>
         ))}
-      </div>
+      </RevealGrid>
     </AppShell>
   );
 }

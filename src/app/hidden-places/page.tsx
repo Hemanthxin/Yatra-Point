@@ -3,6 +3,7 @@ import { Sparkles } from "lucide-react";
 import { auth } from "@/auth";
 import { AppShell } from "@/components/app/AppShell";
 import { DestinationCard } from "@/components/app/DestinationCard";
+import { RevealGrid } from "@/components/app/RevealGrid";
 import { listDestinations, listFavoriteIds } from "@/lib/queries/destinations";
 
 export default async function HiddenPlacesPage() {
@@ -36,7 +37,7 @@ export default async function HiddenPlacesPage() {
           </p>
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <RevealGrid className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {items.map((d) => (
             <DestinationCard
               key={d.id}
@@ -44,7 +45,7 @@ export default async function HiddenPlacesPage() {
               favored={favIds.has(d.id)}
             />
           ))}
-        </div>
+        </RevealGrid>
       )}
     </AppShell>
   );

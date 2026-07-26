@@ -14,6 +14,7 @@ import {
 
 import type { CityPlace } from "@/lib/db/schema";
 import { useLocation } from "@/components/app/LocationContext";
+import { RevealGrid } from "@/components/app/RevealGrid";
 import { sortByUserDistance } from "@/lib/nearby-utils";
 import { formatINR } from "@/lib/format";
 import { formatKm, formatMinutes } from "@/lib/geo";
@@ -261,7 +262,10 @@ export function ExploreClient({ seed }: ExploreClientProps) {
           <p className="text-sm text-slate-500">No matches. Try a wider radius or a different category.</p>
         </div>
       ) : (
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <RevealGrid
+          className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3"
+          resetKey={`${group}|${radiusKm}|${query}|${unified.length}`}
+        >
           {unified.map((u) =>
             u.kind === "seed" ? (
               <SeedCard key={u.key} place={u.seed} userDistanceKm={u.userDistanceKm} />
@@ -269,7 +273,7 @@ export function ExploreClient({ seed }: ExploreClientProps) {
               <OsmCard key={u.key} place={u.osm} userDistanceKm={u.userDistanceKm} />
             )
           )}
-        </div>
+        </RevealGrid>
       )}
     </div>
   );
